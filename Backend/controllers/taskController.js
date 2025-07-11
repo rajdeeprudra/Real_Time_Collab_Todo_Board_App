@@ -1,4 +1,6 @@
 const Task = require("../models/tasks");
+//const user = require("../models/user");
+const User = require("../models/user");
 
 const createTask = async(req,res)=>{
     try{
@@ -119,10 +121,57 @@ const deleteTask = async(req,res)=>{
     }
 };
 
+const smartAssign = async(req,res)=>{
+    const {id}= req.params;
+
+    try{
+
+        const users = await User.find();
+
+        if(!users.length){
+            return res.status(400).json({msg:"No users found"});
+
+        }
+
+        const userTasksCounts = await Promise.all(
+            users.map(async(user)=>{
+                const count = await Task.countDocuments({
+                    assignedTo: user._id,
+                    status:{$ne: "Done"}
+                });
+                return {userId: user._id, count};
+            })
+
+        );
+
+        const leastBusy = userTasksCounts.reduce((min, user)=>
+        user.count < min.count ? user : min
+    );
+
+    const task = await Task.findByIdAndUpdate(
+        id,
+        {assignedTo: leastBusy.userId},
+        {new : true}
+    );
+
+    if(!task){
+        return res.status(404).json({msg:"Task not found"});
+    }
+
+    res.status(200).json({msg:"Task Smart-Assigned",task});
+
+    }catch(err){
+        console.error("Smart Assign error: ", err);
+        res.status(500).json({msg:"Smart Assign Failed", error: err.msg});
+    }
+
+};
+
 
 module.exports = {
     createTask,
     getTasks,
     updateTask,
     deleteTask,
+    smartAssign,
 };
