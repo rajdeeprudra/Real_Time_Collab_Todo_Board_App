@@ -1,6 +1,7 @@
 const Task = require("../models/tasks");
 //const user = require("../models/user");
 const User = require("../models/user");
+const logAction = require("../utils/logAction");
 
 const createTask = async(req,res)=>{
     try{
@@ -23,6 +24,12 @@ const createTask = async(req,res)=>{
         });
 
         const savedTask = await newTask.save();
+
+        await logAction({
+            taskId: savedTask._id,
+            performedBy: req.user.id,
+            actionType: "create"
+        });
 
         res.status(201).json({
             msg:"Task created Successfully", task: savedTask
@@ -89,6 +96,12 @@ const updateTask = async (req,res)=>{
         new: true,
     });
 
+    await logAction({
+        taskId: updatedTask._id,
+        performedBy: req.user.id,
+        actionType: "edit"
+    });
+
     res.status(200).json({msg:" Task updated", task: updatedTask});
    } catch(err){
     res.status(500).json({msg:"Failed to update task",error: err.msg});
@@ -115,6 +128,13 @@ const deleteTask = async(req,res)=>{
         await Task.findByIdAndDelete(id);
 
         res.status(200).json({msg:" Task deleted successfully"});
+
+        await logAction({
+            taskId:task._id,
+            performedBy: req.user.id,
+            actionType: "delete"
+        });
+
     } catch(err){
         console.log("Delete task error:",err);
         res.status(500).json({msg: "Failed to delete task",error:err.msg});
@@ -158,6 +178,12 @@ const smartAssign = async(req,res)=>{
         return res.status(404).json({msg:"Task not found"});
     }
 
+    await logAction({
+        taskId: task._id,
+        performedBy: req.user.id,
+        actionType: "assign"
+    });
+
     res.status(200).json({msg:"Task Smart-Assigned",task});
 
     }catch(err){
@@ -167,6 +193,33 @@ const smartAssign = async(req,res)=>{
 
 };
 
+const dragDropTask = async(req,res)=> {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const task = await Task.findById(id);
+        if(!task) {
+            return res.status(404).json({msg: "Task not found"});
+        }
+
+        task.status = status;
+        const updatedTask = await task.save();
+
+        await logAction ({
+            taskId: updatedTask._id,
+            performedBy: userId,
+            actionType: "drop"
+        });
+
+        res.status(200).json({msg:"Task moved successfully", task: updatedTask});
+    } catch(err) {
+        console.log("drag-drop error", err.msg);
+        res.status(500).json({msg:"Failed to move task", error:err.msg});
+    }
+};
+
 
 module.exports = {
     createTask,
@@ -174,4 +227,5 @@ module.exports = {
     updateTask,
     deleteTask,
     smartAssign,
+    dragDropTask,
 };
