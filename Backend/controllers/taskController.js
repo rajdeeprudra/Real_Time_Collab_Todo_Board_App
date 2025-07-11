@@ -92,8 +92,37 @@ const updateTask = async (req,res)=>{
     res.status(500).json({msg:"Failed to update task",error: err.msg});
    }
 };
+
+
+const deleteTask = async(req,res)=>{
+    const {id}= req.params;
+    const userId= req.user.id;
+
+
+    try{
+        const task = await Task.findById(id);
+
+        if(!task) {
+            return res.status(404).json({msg: "Task not found"});
+        }
+
+        if(task.createdBy.toString()!== userId){
+            return res.status(403).json({msg:"You are not authorized to delete this task"});
+        }
+
+        await Task.findByIdAndDelete(id);
+
+        res.status(200).json({msg:" Task deleted successfully"});
+    } catch(err){
+        console.log("Delete task error:",err);
+        res.status(500).json({msg: "Failed to delete task",error:err.msg});
+    }
+};
+
+
 module.exports = {
     createTask,
     getTasks,
     updateTask,
+    deleteTask,
 };
