@@ -31,6 +31,9 @@ const createTask = async(req,res)=>{
             actionType: "create"
         });
 
+        const io = req.app.get("io");
+        io.emit("taskCreated", savedTask);
+
         res.status(201).json({
             msg:"Task created Successfully", task: savedTask
         });
@@ -102,6 +105,9 @@ const updateTask = async (req,res)=>{
         actionType: "edit"
     });
 
+    const io = req.app.get("io");
+    io.emit("taskUpdated", updatedTask);
+
     res.status(200).json({msg:" Task updated", task: updatedTask});
    } catch(err){
     res.status(500).json({msg:"Failed to update task",error: err.msg});
@@ -134,6 +140,9 @@ const deleteTask = async(req,res)=>{
             performedBy: req.user.id,
             actionType: "delete"
         });
+
+        const io = req.body.get("io");
+        io.emit("taskDeleted",id);
 
     } catch(err){
         console.log("Delete task error:",err);
@@ -183,6 +192,9 @@ const smartAssign = async(req,res)=>{
         performedBy: req.user.id,
         actionType: "assign"
     });
+
+    const io = req.app.get("io");
+    io.emit("taskSmartAssigned",task);
 
     res.status(200).json({msg:"Task Smart-Assigned",task});
 
