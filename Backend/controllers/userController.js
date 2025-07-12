@@ -10,9 +10,9 @@ try{
     
     const existingUser = await User.findOne({email});
     if(existingUser){
-        res.status(400).json({
+       return res.status(400).json({
             msg:"User already Exists!"
-        })
+        });
     }
 
     //hash passwords
@@ -22,11 +22,11 @@ try{
     const newUser = new User({username, email, password:hashedPassword});
     await newUser.save();
 
-    res.status(201).json({msg:"User created successfully"});
+    return res.status(201).json({msg:"User created successfully"});
 
     
 }catch(err){
-    res.status(500).json({msg: "An error occurred"});
+   return res.status(500).json({msg: "An error occurred"});
 }
 };
 
@@ -36,14 +36,14 @@ exports.login = async (req,res)=>{
 
         const user = await User.findOne({email});
         if(!user){
-            res.status(401).json({
+          return  res.status(401).json({
                 msg:"User deos not exists"
             });
         }
 
         const isMatch = await bcrypt.compare(password,user.password);
         if(!isMatch){
-            res.status(401).json({
+           return res.status(401).json({
                 msg:"Invalid credentials"
             });
         }
@@ -53,7 +53,7 @@ exports.login = async (req,res)=>{
             expiresIn: "2h",
         });
 
-        res.status(200).json({
+       return res.status(200).json({
             token,
             user: {
                 id: user._id,
@@ -64,6 +64,6 @@ exports.login = async (req,res)=>{
 
 
     }catch(err){
-        res.status(500).json({msg:err.msg});
+       return res.status(500).json({msg:err.msg});
     }
 };

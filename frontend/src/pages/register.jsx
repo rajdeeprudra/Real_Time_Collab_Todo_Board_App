@@ -9,9 +9,10 @@ const Register= ()=>{
         password:""
     });
     const [msg, setMsg] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
 
     const handleChange= (e)=> {
-        setForm({ ...form, [e.terget.name]: e.terget.value});
+        setForm({ ...form, [e.target.name]: e.target.value});
     };
 
     const handleRegister = async (e)=> {
@@ -22,6 +23,13 @@ const Register= ()=>{
                 form
             );
             setMsg("Registered successfully!");
+            setShowPopup(true);
+            setForm({username: "", email:"", password:""});
+
+            setTimeout(()=>{
+                setShowPopup(false);
+                setMsg("");
+            },3000);
         } catch (err) {
             setMsg(err.response?.data?.msg || "Registration failed");
         }
@@ -33,6 +41,7 @@ const Register= ()=>{
             <form onSubmit={handleRegister}>
                 <input 
                 name="username" 
+                type="text"
                 value={form.username} 
                 onChange={handleChange} 
                 placeholder="Username"
