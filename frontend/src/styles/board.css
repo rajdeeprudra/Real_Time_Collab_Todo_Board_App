@@ -1,5 +1,12 @@
+.board-wrapper {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
 .board-container {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   
 }
