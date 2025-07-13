@@ -37,7 +37,7 @@ const ActivityLog = () => {
       <ul>
         {logs.map((log, index) => (
           <li key={index}>
-            📝 <strong>{log.user}</strong> {log.actionType} task "<strong>{log.taskTitle}</strong>" at {new Date(log.timestamp).toLocaleTimeString()}
+            <strong>{log.user}</strong> {log.actionType} task "<strong>{log.taskTitle}</strong>" at {new Date(log.timestamp).toLocaleTimeString()}
           </li>
         ))}
       </ul>
