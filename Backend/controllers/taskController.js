@@ -19,8 +19,8 @@ const createTask = async(req,res)=>{
             description,
             priority,
             status,
-            assignedTo: assignedTo || null,
-            createdBy: req.user.id
+            assignedTo: assignedTo,
+            createdBy: req.user.id,
         });
 
         const savedTask = await newTask.save();
@@ -28,7 +28,8 @@ const createTask = async(req,res)=>{
         await logAction({
             taskId: savedTask._id,
             performedBy: req.user.id,
-            actionType: "create"
+            actionType: "create",
+            message : `${req.user.name} created a task.`,
         });
 
         const io = req.app.get("io");
@@ -49,7 +50,7 @@ const getTasks = async(req,res)=>{
     try{
         const userId = req.user.id;
 
-        const tasks = await Task.find({createdBy:userId});
+        const tasks = await Task.find({createdBy:userId}).populate("createdBy", "name email");
         res.status(200).json({ tasks });
     }catch(err){
         res.status(500).json({msg:" Failed to fetch tasks", error: err.msg});
@@ -110,45 +111,49 @@ const updateTask = async (req,res)=>{
 
     res.status(200).json({msg:" Task updated", task: updatedTask});
    } catch(err){
-    res.status(500).json({msg:"Failed to update task",error: err.msg});
+    res.status(500).json({msg:"Failed to update task",error: err.message});
    }
 };
 
 
-const deleteTask = async(req,res)=>{
-    const {id}= req.params;
-    const userId= req.user.id;
+const deleteTask = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
 
+  try {
+    const task = await Task.findById(id);
 
-    try{
-        const task = await Task.findById(id);
-
-        if(!task) {
-            return res.status(404).json({msg: "Task not found"});
-        }
-
-        if(task.createdBy.toString()!== userId){
-            return res.status(403).json({msg:"You are not authorized to delete this task"});
-        }
-
-        await Task.findByIdAndDelete(id);
-
-        res.status(200).json({msg:" Task deleted successfully"});
-
-        await logAction({
-            taskId:task._id,
-            performedBy: req.user.id,
-            actionType: "delete"
-        });
-
-        const io = req.body.get("io");
-        io.emit("taskDeleted",id);
-
-    } catch(err){
-        console.log("Delete task error:",err);
-        res.status(500).json({msg: "Failed to delete task",error:err.msg});
+    if (!task) {
+      return res.status(404).json({ msg: "Task not found" });
     }
+
+    
+    if (
+      task.createdBy.toString() !== userId &&
+      (!task.assignedTo || task.assignedTo.toString() !== userId)
+    ) {
+      return res.status(403).json({ msg: "You are not authorized to delete this task" });
+    }
+
+    await Task.findByIdAndDelete(id);
+
+    await logAction({
+      taskId: task._id,
+      performedBy: req.user.id,
+      actionType: "delete",
+      message: `${req.user.name} deleted a task.`,
+    });
+
+    const io = req.app.get("io");
+    io.emit("taskDeleted", id);
+
+    res.status(200).json({ msg: "Task deleted successfully" });
+  } catch (err) {
+    console.log("Delete task error:", err);
+    res.status(500).json({ msg: "Failed to delete task", error: err.message });
+  }
 };
+
 
 const smartAssign = async(req,res)=>{
     const {id}= req.params;
@@ -226,6 +231,9 @@ const dragDropTask = async(req,res)=> {
         });
 
         res.status(200).json({msg:"Task moved successfully", task: updatedTask});
+        const io = req.app.get("io");
+        io.emit("taskDragged", updatedTask);
+
     } catch(err) {
         console.log("drag-drop error", err.msg);
         res.status(500).json({msg:"Failed to move task", error:err.msg});

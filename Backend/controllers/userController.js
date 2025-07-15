@@ -30,6 +30,8 @@ try{
 }
 };
 
+
+
 exports.login = async (req,res)=>{
     try{
         const {email, password}= req.body;
@@ -49,7 +51,7 @@ exports.login = async (req,res)=>{
         }
 
 
-        const token = jwt.sign({id:user._id}, process.env.JWT_SECRET,{
+        const token = jwt.sign({id:user._id, name:user.name}, process.env.JWT_SECRET,{
             expiresIn: "2h",
         });
 
@@ -66,4 +68,14 @@ exports.login = async (req,res)=>{
     }catch(err){
        return res.status(500).json({msg:err.msg});
     }
+};
+
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, "_id name"); 
+    res.status(200).json({ users });
+  } catch (err) {
+    console.error("Failed to fetch users:", err);
+    res.status(500).json({ msg: "Failed to fetch users", error: err.message });
+  }
 };
