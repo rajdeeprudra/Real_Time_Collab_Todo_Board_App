@@ -85,7 +85,7 @@ const TaskForm = ({ onTaskCreated }) => {
         <option value="">Assign To</option>
         {users.map((user) => (
           <option key={user._id} value={user._id}>
-            {user.name}
+            {user.username || user.email || user._id}
           </option>
         ))}
       </select>

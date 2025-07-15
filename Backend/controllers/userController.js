@@ -72,7 +72,7 @@ exports.login = async (req,res)=>{
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({}, "_id name"); 
+    const users = await User.find({}, "_id username"); 
     res.status(200).json({ users });
   } catch (err) {
     console.error("Failed to fetch users:", err);

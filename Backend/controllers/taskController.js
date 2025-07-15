@@ -46,15 +46,20 @@ const createTask = async(req,res)=>{
 };
 
 
-const getTasks = async(req,res)=>{
-    try{
-        const userId = req.user.id;
+const getTasks = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-        const tasks = await Task.find({createdBy:userId}).populate("createdBy", "name email");
-        res.status(200).json({ tasks });
-    }catch(err){
-        res.status(500).json({msg:" Failed to fetch tasks", error: err.msg});
-    }
+    const tasks = await Task.find({
+      $or: [{ createdBy: userId }, { assignedTo: userId }],
+    })
+      .populate("createdBy", "name email")      // ✅ populate createdBy
+      .populate("assignedTo", "name email");    // ✅ populate assignedTo
+
+    res.status(200).json({ tasks });
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to fetch tasks", error: err.message });
+  }
 };
 
 
