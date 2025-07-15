@@ -153,7 +153,7 @@ const Board = () => {
   const handleSmartAssign = async (taskId) => {
     try {
       const res = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/tasks/:${taskId}/smart-assign`,
+        `${import.meta.env.VITE_API_URL}/tasks/${taskId}/smart-assign`,
         {},
         {
           headers: {
