@@ -1,14 +1,7 @@
 const ActionLog = require("../models/ActionLog");
+const Task = require("../models/tasks");
 
-const logAction = async({ taskId, performedBy, actionType }) => {
-    try {
-    await ActionLog.create({ taskId, performedBy, actionType });
-    }catch (error) {
-        console.error("Failed to log action: ", error.message);
-    }
-};
-
-function generateMessage(actionType, taskTitle = "a task") {
+const generateMessage = (actionType, taskTitle = "a task") => {
   switch (actionType) {
     case "create":
       return `created task "${taskTitle}"`;
@@ -23,7 +16,25 @@ function generateMessage(actionType, taskTitle = "a task") {
     default:
       return `did something with "${taskTitle}"`;
   }
-}
+};
 
+const logAction = async ({ taskId, performedBy, actionType }) => {
+  try {
+    // Fetch task title for message generation
+    const task = await Task.findById(taskId).select("title");
+    const taskTitle = task?.title || "a task";
 
-module.exports =logAction;
+    const message = generateMessage(actionType, taskTitle);
+
+    await ActionLog.create({
+      taskId,
+      performedBy,
+      actionType,
+      message, // ✅ now we include the required field
+    });
+  } catch (error) {
+    console.error("❌ Failed to log action:", error.message);
+  }
+};
+
+module.exports = logAction;

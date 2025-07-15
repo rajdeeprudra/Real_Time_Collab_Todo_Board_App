@@ -5,7 +5,7 @@ const getRecentLogs = async(req,res) => {
         const logs = await ActionLog.find()
         .sort({ createdAt: -1})
         .limit(20)
-        .populate("performedBy","username email")
+        .populate("performedBy","username")
         .populate("taskId", "title");
 
         res.status(200).json({logs});

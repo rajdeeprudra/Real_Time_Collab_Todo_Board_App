@@ -1,14 +1,18 @@
 const http = require("http");
 const app = require("./app");
 const {Server} = require("socket.io");
+const cors = require("cors");
+const taskRoutes = require("./routes/taskRoutes");
 
 const server = http.createServer(app);
 
-//socket.io server
+
+
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "http://localhost:5173",
         methods: ["GET", "POST", "PATCH","DELETE","PUT"],
+        credentials:true,
     },
 });
 

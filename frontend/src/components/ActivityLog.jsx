@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
+//import { io } from "socket.io-client";
+import socket from "../socket";
 
-const socket = io(import.meta.env.VITE_API_URL);
+// const socket = io(import.meta.env.VITE_API_URL, {
+//   transports:["websocket"],
+//   withCredentials: true,
+// });
 
 const ActivityLog = () => {
   const [logs, setLogs] = useState([]);

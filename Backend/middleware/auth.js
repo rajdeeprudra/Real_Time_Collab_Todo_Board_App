@@ -17,8 +17,8 @@ const auth = async (req, res, next) => {
     if (!user) return res.status(401).json({ msg: "User not found." });
 
     req.user = {
-      id: user._id,
-      name: user.username, // 👈 Map name properly here
+      id: user._id.toString(),
+      name: user.username, 
       email: user.email,
     };
 
