@@ -205,7 +205,7 @@ const Board = () => {
   return (
     <div className="board-wrapper">
       <div className="board-container">
-        <h2>🧠 Collaborative Kanban Board</h2>
+        <h2>Collaborative Kanban Board</h2>
         <TaskForm onTaskCreated={fetchTasks} />
 
         <DragDropContext onDragEnd={onDragEnd}>

@@ -85,7 +85,7 @@ const updateTask = async (req, res) => {
   });
 }
 
-    // Conflict detection using timestamps
+    
     const clientUpdatedAt = req.body.updatedAt;
     if (
       clientUpdatedAt &&

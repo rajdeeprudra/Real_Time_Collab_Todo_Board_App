@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/activityLog.css";
-
-//import { io } from "socket.io-client";
 import socket from "../socket";
 
-// const socket = io(import.meta.env.VITE_API_URL, {
-//   transports:["websocket"],
-//   withCredentials: true,
-// });
 
 const ActivityLog = () => {
   const [logs, setLogs] = useState([]);
@@ -25,7 +19,7 @@ const ActivityLog = () => {
       );
       setLogs(res.data.logs);
     } catch (err) {
-      console.error("❌ Failed to fetch logs", err);
+      console.error("Failed to fetch logs", err);
     }
   };
 
