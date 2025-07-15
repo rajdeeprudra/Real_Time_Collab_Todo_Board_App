@@ -58,8 +58,6 @@ const Board = () => {
       updatedAt: task.updatedAt,
     };
 
-    console.log("📦 Data being sent to backend:", updatedData);
-
     axios
       .put(`${import.meta.env.VITE_API_URL}/tasks/${task._id}`, updatedData, {
         headers: {
@@ -68,16 +66,72 @@ const Board = () => {
         },
       })
       .then(() => {
-        console.log("✅ Edit successful");
         fetchTasks();
       })
       .catch((err) => {
-        const errorMsg =
-          err.response?.data?.msg ||
-          JSON.stringify(err.response?.data) ||
-          err.message;
-        console.error("❌ Edit failed:", errorMsg);
-        alert("Edit failed: " + errorMsg);
+        const errorData = err.response?.data;
+
+        if (err.response?.status === 409 && errorData?.serverVersion) {
+          const server = errorData.serverVersion;
+          const client = errorData.clientVersion;
+
+          const mergeOption = window.confirm(
+            `Conflict Detected!\n\nServer Version:\nTitle: ${server.title}\nDescription: ${server.description}\n\nYour Version:\nTitle: ${client.title}\nDescription: ${client.description}\n\nClick OK to OVERWRITE.\nClick Cancel to MERGE.`
+          );
+
+          if (mergeOption) {
+            axios
+              .put(`${import.meta.env.VITE_API_URL}/tasks/${task._id}`, updatedData, {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  "Content-Type": "application/json",
+                },
+              })
+              .then(() => {
+                alert("Overwritten successfully");
+                fetchTasks();
+              })
+              .catch((err) =>
+                alert("Failed to overwrite: " + (err.response?.data?.msg || err.message))
+              );
+          } else {
+            const mergedTitle = prompt(
+              "Enter merged title:",
+              `${server.title}/${client.title}`
+            );
+            const mergedDesc = prompt(
+              "Enter merged description:",
+              `${server.description}/${client.description}`
+            );
+            if (!mergedTitle || !mergedDesc) return;
+
+            const mergedData = {
+              title: mergedTitle,
+              description: mergedDesc,
+              status: task.status,
+              updatedAt: server.updatedAt,
+            };
+
+            axios
+              .put(`${import.meta.env.VITE_API_URL}/tasks/${task._id}`, mergedData, {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  "Content-Type": "application/json",
+                },
+              })
+              .then(() => {
+                alert("Merged and saved");
+                fetchTasks();
+              })
+              .catch((err) =>
+                alert("Failed to merge: " + (err.response?.data?.msg || err.message))
+              );
+          }
+        } else {
+          const fallback =
+            errorData?.msg || JSON.stringify(errorData) || err.message;
+          alert("Edit failed: " + fallback);
+        }
       });
   };
 
@@ -90,11 +144,28 @@ const Board = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log("Task deleted successfully");
       fetchTasks();
     } catch (err) {
-      console.error("❌ Delete failed:", err.response?.data || err.message);
       alert(err.response?.data?.msg || "Delete failed");
+    }
+  };
+
+  const handleSmartAssign = async (taskId) => {
+    try {
+      const res = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/tasks/:${taskId}/smart-assign`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      alert(res.data.msg || "Smart assigned");
+      fetchTasks();
+    } catch (err) {
+      console.error("Smart assign failed:", err);
+      alert(err.response?.data?.msg || "Smart assign failed");
     }
   };
 
@@ -135,22 +206,21 @@ const Board = () => {
                               <p>
                                 <strong>Priority:</strong> {task.priority}
                               </p>
-                              <p className="creator">
+                              <p>
                                 <strong>Created By:</strong>{" "}
                                 {task.createdBy?.email || "Someone"}
                               </p>
-                              <p className="assignedTo">
+                              <p>
                                 <strong>Assigned To:</strong>{" "}
                                 {task.assignedTo?.email || "Not Assigned"}
                               </p>
                               <div className="task-actions">
-                                <button onClick={() => handleEdit(task)}>
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(task._id)}
-                                >
+                                <button onClick={() => handleEdit(task)}>Edit</button>
+                                <button onClick={() => handleDelete(task._id)}>
                                   Delete
+                                </button>
+                                <button onClick={() => handleSmartAssign(task._id)}>
+                                  Smart Assign
                                 </button>
                               </div>
                             </div>
@@ -166,7 +236,6 @@ const Board = () => {
         </DragDropContext>
       </div>
 
-      {/* Right: Activity Log */}
       <ActivityLog />
     </div>
   );
