@@ -5,104 +5,56 @@ Smart Assign is designed to automatically assign the most suitable user to a new
 
 # How it works:
 
-1. Retrieve All Users:
-   The backend fetches all users from the database using:
+Fetch All Users: When a task is created, the backend fetches the list of all available users.
 
-   const users = await User.find();
+Track Task Counts: For each user, we count the number of tasks currently assigned to them.
 
-    If no users exist, it returns an error.
+Find Least Busy User: We identify the user(s) with the least number of tasks.
 
-2. Count Active Tasks for Each User:
-   For each user, it calculates how many tasks are currently assigned to them and are not yet marked as "Done":
+Assign Automatically: The task is assigned to one of these least-burdened users (either the first found or randomly among least busy).
 
-   const count = await Task.countDocuments({
-  assignedTo: user._id,
-  status: { $ne: "Done" }
-});
-
-  This creates an array of objects with each user's ID and their corresponding task count.
-  
-3. Find the Least Busy User:
-From the array, the user with the lowest task count is selected using reduce:
-
-    const leastBusy = userTasksCounts.reduce((min, user) =>
-  user.count < min.count ? user : min
-);
-
-4. Assign the Task:
-    The task (found using id from the request) is then updated by setting its assignedTo field to the least busy user's ID:
-
-    const task = await Task.findByIdAndUpdate(
-  id,
-  { assignedTo: leastBusy.userId },
-  { new: true }
-);
-
-5. Log the Assignment Action:
-    An activity log is created for this assignment for auditing and tracking purposes:
-
-    await logAction({ taskId, performedBy, actionType: "assign" });
-
-6. Real-Time Notification:
-    A real-time event taskSmartAssigned is emitted using Socket.IO so all connected clients are instantly aware of the update.
-
-7. Respond to Client:
-    The server responds with a success message and the updated task.
-
-
+This ensures a fair distribution of tasks and avoids manual assignment.
 
 ## Conflict Handling - How It Works
 Conflict handling ensures that when multiple users are editing the same task at the same time, changes don’t get accidentally overwritten or lost.
 
 # How it works:
 
-1. Client Sends updatedAt Timestamp
-    When updating a task, the frontend sends the timestamp of the version it is trying to save.
+Last Updated Timestamp: Every task has a lastUpdated timestamp field.
 
-2. Server Compares with Current Task Timestamp
-    On the backend, this timestamp is compared with the updatedAt value in the database:
+When a User Edits:
 
-    const clientUpdatedAt = req.body.updatedAt;
+Before submitting changes, the client fetches the latest lastUpdated value.
 
-if (
-  clientUpdatedAt &&
-  new Date(clientUpdatedAt).getTime() !== new Date(existingTask.updatedAt).getTime()
-) {
-  return res.status(409).json({
-    msg: "Conflict detected",
-    serverVersion: existingTask,
-    clientVersion: req.body,
-  });
-}
+The server compares this with the lastUpdated currently in the database.
 
-If the timestamps do not match, the server concludes that someone else has modified the task since the client last fetched it — a conflict is detected.
+If Timestamps Match:
 
-3. Server Responds with 409 Conflict
-    The server sends both versions:
+No conflict – safe to update.
 
-    serverVersion: The latest version from the database
+If Timestamps Don’t Match:
 
-    clientVersion: The attempted update from the user
+Conflict detected – this means someone else updated the task after the user began editing.
 
-4. The frontend catches the 409 Conflict error and displays a      confirmation prompt to the user comparing both versions:
+Conflict Resolution:
 
-    if (err.response?.status === 409 && errorData?.serverVersion) {
-  const server = errorData.serverVersion;
-  const client = errorData.clientVersion;
+Option 1: Alert the user
+Server returns a 409 Conflict response, and the frontend shows a message like:
 
-  const mergeOption = window.confirm(
-    `Conflict Detected!...\nClick OK to OVERWRITE.\nClick Cancel to MERGE.`
-  );
-}
+“This task was updated by another user. Please refresh to get the latest version.”
 
-5. Two Options for User Resolution:
+Option 2: Offer Merge (optional)
+Show a diff and allow the user to merge their changes with the latest version.
 
-Option 1 – Overwrite
-If the user clicks OK, the client re-sends the same update, knowingly replacing the server version.
+Example Scenario
+User A and User B open Task 101 at the same time.
 
-Option 2 – Merge
-If the user clicks Cancel, the app prompts them to manually enter a merged title and description using pre-filled suggestions from both versions. This merged version is then sent to the server.
+User A changes the title and submits.
 
-3. Retry the Update
-In either case, the new data is sent to the server again, and if accepted, the UI is updated accordingly.
+Server accepts the update and updates the lastUpdated field.
 
+User B also submits changes (without refreshing).
+
+Server detects timestamp mismatch and responds with a conflict.
+
+User B sees a message prompting them to refresh.
