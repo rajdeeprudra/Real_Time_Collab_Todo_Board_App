@@ -1,4 +1,4 @@
-# 🧠 Collaborative Kanban Task Board
+# Collaborative Kanban Task Board
 
 A real-time, multi-user collaborative Kanban board built using the **MERN stack**. This application allows users to manage tasks across multiple statuses like Todo, In Progress, and Done. It supports live updates via WebSockets, smart task assignment based on user workload, conflict handling for concurrent edits, and activity tracking.
 
@@ -14,7 +14,7 @@ A real-time, multi-user collaborative Kanban board built using the **MERN stack*
 
 ---
 
-## 🚀 Project Overview
+## Project Overview
 
 This project enables efficient team collaboration by:
 - Allowing real-time task updates for all users
@@ -25,7 +25,7 @@ This project enables efficient team collaboration by:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 
 ### Frontend
