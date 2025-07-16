@@ -53,9 +53,10 @@ cd backend
 npm install
 
 ## Create a .env file inside the backend/ folder with the following:
-PORT = 5000
-MONGO_URL= "mongodb+srv://rajdeeprudra2003:XMSZJr2MfxvmmcqQ@cluster0.lb5ogju.mongodb.net/"
-JWT_SECRET="mySecretKey123"
+PORT=5000
+MONGO_URI=your_mongodb_connection_string_here
+JWT_SECRET=your_jwt_secret_here
+
 
 Then start the backend server:
 
