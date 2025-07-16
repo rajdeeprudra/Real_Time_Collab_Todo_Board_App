@@ -4,15 +4,12 @@ import "../styles/board.css";
 import ActivityLog from "../components/ActivityLog";
 import TaskForm from "../components/TaskForm";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-//import io from "socket.io-client";
+
 import socket from "../socket";
 
 const columns = ["Todo", "In Progress", "Done"];
 
-// const socket = io(import.meta.env.VITE_API_URL,{
-//   transports:["websocket"],
-//   withCredentials:true,
-// });
+
 
 const Board = () => {
   const [tasks, setTasks] = useState([]);
@@ -33,7 +30,7 @@ const Board = () => {
   useEffect(() => {
     fetchTasks();
 
-    //
+    
     socket.on("taskCreated", (task)=>{
       setTasks((prev)=> [...prev,task]);
     });

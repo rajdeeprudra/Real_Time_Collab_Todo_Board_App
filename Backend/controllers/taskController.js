@@ -69,9 +69,7 @@ const updateTask = async (req, res) => {
       return res.status(404).json({ msg: "Task not found" });
     }
 
-    console.log("🔒 User trying to update:", userId);
-    console.log("📌 Task createdBy:", existingTask.createdBy);
-    console.log("📌 Task assignedTo:", existingTask.assignedTo);
+ 
 
    if (
   existingTask.createdBy.toString() !== userId &&
@@ -135,9 +133,7 @@ const deleteTask = async (req, res) => {
       return res.status(404).json({ msg: "Task not found" });
     }
 
-    console.log("🔒 User trying to delete:", userId);
-    console.log("📌 Task createdBy:", task.createdBy);
-    console.log("📌 Task assignedTo:", task.assignedTo);
+   
 
     if (
       task.createdBy.toString() !== userId &&
@@ -231,9 +227,6 @@ const dragDropTask = async (req, res) => {
       return res.status(404).json({ msg: "Task not found" });
     }
 
-    console.log("🔒 User trying to drag-drop:", userId);
-    console.log("📌 Task createdBy:", task.createdBy);
-    console.log("📌 Task assignedTo:", task.assignedTo);
 
     if (
       task.createdBy.toString() !== userId &&

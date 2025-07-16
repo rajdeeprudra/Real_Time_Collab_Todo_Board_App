@@ -47,11 +47,11 @@ const TaskForm = ({ onTaskCreated }) => {
           },
         }
       );
-      setMsg("✅ Task created!");
+      setMsg("Task created!");
       setForm({ title: "", description: "", priority: "Low" });
-      onTaskCreated(); // callback to refresh tasks
+      onTaskCreated(); 
     } catch (err) {
-      setMsg(err.response?.data?.msg || "❌ Failed to create task");
+      setMsg(err.response?.data?.msg || "Failed to create task");
     }
   };
 

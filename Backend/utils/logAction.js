@@ -30,10 +30,10 @@ const logAction = async ({ taskId, performedBy, actionType }) => {
       taskId,
       performedBy,
       actionType,
-      message, // ✅ now we include the required field
+      message, 
     });
   } catch (error) {
-    console.error("❌ Failed to log action:", error.message);
+    console.error("Failed to log action:", error.message);
   }
 };
 
