@@ -48,7 +48,7 @@ This project enables efficient team collaboration by:
 
 ###  Backend Setup
 
-```bash
+In your terminal go to the project root 
 cd backend
 npm install
 
@@ -116,12 +116,23 @@ View live updates and logs in the Activity Log panel.
 The Smart Assign feature assigns a task to the user with the least number of currently assigned tasks of that user role (employee or NGO). This ensures fair workload distribution.
 
 Steps:
+When the "Smart Assign" button is clicked for a task, a request is sent to: PATCH /tasks/:id/smart-assign
+
+All users are fetched from the database.
+
+For each user, the number of tasks currently assigned to them is counted.
+
+The user with the minimum number of tasks is identified.
+
+The selected task is then assigned to that user.
+
+Logging:
+
+After assignment, the action is logged in the ActionLog model.
+
+A real-time update is emitted to all connected clients via Socket.IO.
 
 Fetch all users in the same role group.
-
-Count current tasks assigned to each.
-
-Assign task to the user with the minimum task count.
 
 ----
 
