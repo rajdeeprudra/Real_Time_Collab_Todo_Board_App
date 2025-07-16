@@ -1,6 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+
+
 import "../styles/form.css";
+
+
+
 
 const Register= ()=>{
     const [form, setForm] = useState({
@@ -8,6 +14,7 @@ const Register= ()=>{
         email: "",
         password:""
     });
+    const navigate = useNavigate();
     const [msg, setMsg] = useState("");
     const [showPopup, setShowPopup] = useState(false);
 
@@ -23,6 +30,7 @@ const Register= ()=>{
                 form
             );
             setMsg("Registered successfully!");
+            navigate('/login');
             setShowPopup(true);
             setForm({username: "", email:"", password:""});
 

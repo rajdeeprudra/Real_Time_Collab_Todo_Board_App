@@ -112,7 +112,7 @@ View live updates and logs in the Activity Log panel.
 
 -------
 
-## Smart Assign Logic
+### Smart Assign Logic
 The Smart Assign feature assigns a task to the user with the least number of currently assigned tasks of that user role (employee or NGO). This ensures fair workload distribution.
 
 Steps:

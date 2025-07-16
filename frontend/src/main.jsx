@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import Register from './pages/register';
 import Login from "./pages/login";
-//import Board from "./pages/board";
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
