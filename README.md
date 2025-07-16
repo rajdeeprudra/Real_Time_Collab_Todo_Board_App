@@ -9,6 +9,11 @@ A real-time, multi-user collaborative Kanban board built using the **MERN stack*
 
 ---
 
+## Video Link(Loom)
+- https://www.loom.com/share/562a837f0f29415f92c1102d1695d16c?sid=3ca29ce1-50f7-431d-8bb6-acba86afcf6e
+
+---
+
 ## 🚀 Project Overview
 
 This project enables efficient team collaboration by:
