@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../styles/activityLog.css";
+import "../styles/ActivityLog.css";
 import socket from "../socket";
 
 
